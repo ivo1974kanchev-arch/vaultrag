@@ -1,0 +1,30 @@
+{
+  "name": "vaultrag",
+  "version": "1.0.0",
+  "description": "Chat with your docs. Offline. Forever private. — License server for vaultrag.",
+  "private": true,
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "wrangler dev src/index.ts --port 8787",
+    "deploy": "wrangler deploy src/index.ts",
+    "lint": "eslint src --ext .ts",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.43.4",
+    "dotenv": "^16.4.5",
+    "hono": "^4.4.4"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20240603.0",
+    "@types/node": "^20.14.2",
+    "eslint": "^8.57.0",
+    "typescript": "^5.4.5",
+    "vitest": "^1.6.0",
+    "wrangler": "^3.60.3"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
