@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VaultRAG — Chat with your docs. Offline. Forever private.</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    html { font-family: 'Inter', sans-serif; }
+    body {
+      background: linear-gradient(135deg, #0a0a0f 0%, #0f0f1a 40%, #111827 100%);
+      min-height: 100vh;
+      color: #e2e8f0;
+    }
+
+    /* Animations */
+    .fade-up {
+      opacity: 0;
+      transform: translateY(32px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .fade-up.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .fade-up-delay-1 { transition-delay: 0.1s; }
+    .fade-up-delay-2 { transition-delay: 0.2s; }
+    .fade-up-delay-3 { transition-delay: 0.3s; }
+
+    /* Gradient text */
+    .gradient-text {
+      background: linear-gradient(135deg, #818cf8 0%, #6366f1 40%, #a78bfa 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .gradient-text-blue {
+      background: linear-gradient(135deg, #60a5fa 0%, #818cf8 60%, #c084fc 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* Glassmorphism */
+    .glass {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+    .glass-hover {
+      transition: background 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
+    }
+    .glass-hover:hover {
+      background: rgba(99, 102, 241, 0.08);
+      border-color: rgba(99, 102, 241, 0.3);
+      transform: translateY(-4px);
+    }
+
+    /* Nav blur */
+    .nav-blur {
+      background: rgba(10, 10, 15, 0.8);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    /* Hero pattern */
+    .hero-mockup {
+      background:
+        linear-gradient(rgba(99, 102, 241, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(99, 102, 241, 0.05) 1px, transparent 1px);
+      background-size: 40px 40px;
+      background-color: rgba(15, 15, 30, 0.8);
+      border: 1px solid rgba(99, 102, 241, 0.2);
+      border-radius: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-mockup::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 50% 50%, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
+    }
+
+    /* Glow effects */
+    .btn-primary {
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      box-shadow: 0 0 30px rgba(99, 102, 241, 0.35), 0 4px 15px rgba(0, 0, 0, 0.3);
+      transition: box-shadow 0.3s ease, transform 0.2s ease, opacity 0.2s ease;
+    }
+    .btn-primary:hover {
+      box-shadow: 0 0 50px rgba(99, 102, 241, 0.55), 0 8px 25px rgba(0, 0, 0, 0.4);
+      transform: translateY(-2px);
+    }
+    .btn-primary:active { transform: translateY(0); }
+
+    /* Pricing highlight */
+    .pricing-popular {
+      border: 1px solid rgba(99, 102, 241, 0.5);
+      background: rgba(99, 102, 241, 0.08);
+      position: relative;
+      box-shadow: 0 0 40px rgba(99, 102, 241, 0.15);
+    }
+
+    /* Accordion */
+    .accordion-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s ease, padding 0.3s ease;
+    }
+    .accordion-content.open {
+      max-height: 300px;
+    }
+    .accordion-icon {
+      transition: transform 0.3s ease;
+    }
+    .accordion-item.open .accordion-icon {
+      transform: rotate(45deg);
+    }
+
+    /* Testimonial gradient border */
+    .testimonial-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      position: relative;
+    }
+    .testimonial-card::before {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      border-radius: inherit;
+      background: linear-gradient(135deg, rgba(99,102,241,0.4), transparent 50%, rgba(167,139,250,0.2));
+      z-index: -1;
+      border-radius: 17px;
+    }
+
+    /* Input focus */
+    .email-input:focus {
+      outline: none;
+      border-color: rgba(99, 102, 241, 0.6);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+    }
+
+    /* Logo bar */
+    .logo-item {
+      color: rgba(148, 163, 184, 0.5);
+      font-weight: 700;
+      font-size: 0.85rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      transition: color 0.3s;
+    }
+    .logo-item:hover { color: rgba(148, 163, 184, 0.8); }
+
+    /* Subtle noise overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.4;
+    }
+
+    section, nav, footer { position: relative; z-index: 1; }
+
+    /* Divider glow */
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(99,102,241,0.3), transparent);
+    }
+
+    /* Check icon */
+    .check-item::before {
+      content: '✓';
+      color: #818cf8;
+      font-weight: 700;
+      margin-right: 8px;
+    }
+
+    /* Before/After cards */
+    .before-card {
+      background: rgba(239, 68, 68, 0.05);
+      border: 1px solid rgba(239, 68, 68, 0.15);
+    }
+    .after-card {
+      background: rgba(99, 102, 241, 0.06);
+      border: 1px solid rgba(99, 102, 241, 0.2);
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav-blur sticky top-0 z-50 w-full">
+  <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+    <div class="flex items-center gap-2">
+      <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: linear-gradient(135deg, #6366f1, #8b5cf6);">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2L3 7v10l9 5 9-5V7L12 2z" stroke="white" stroke-width="2" stroke-linejoin="round"/>
+          <path d="M12 12L3 7M12 12l9-5M12 12v10" stroke="white" stroke-width="1.5"/>
+        </svg>
+      </div>
+      <span class="font-bold text-white text-lg tracking-tight">vault<span class="gradient-text">rag</span></span>
+    </div>
+    <div class="flex items-center gap-6">
+      <a href="#features" class="hidden md:block text-sm text-slate-400 hover:text-white transition-colors">Features</a>
+      <a href="#pricing" class="hidden md:block text-sm text-slate-400 hover:text-white transition-colors">Pricing</a>
+      <a href="#faq" class="hidden md:block text-sm text-slate-400 hover:text-white transition-colors">FAQ</a>
+      <a href="#waitlist" class="btn-primary text-white text-sm font-semibold px-5 py-2.5 rounded-lg no-underline">Join Waitlist</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="pt-24 pb-24 px-6">
+  <div class="max-w-6xl mx-auto">
+    <div class="text-center mb-16 fade-up">
+      <div class="inline-flex items-center gap-2 glass rounded-full px-4 py-2 mb-8 text-sm text-slate-400">
+        <span class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
+        Now accepting early access — Powered by Gemma 4 on Android
+      </div>
+      <h1 class="text-5xl md:text-7xl font-black tracking-tight leading-[1.05] text-white mb-6 max-w-5xl mx-auto">
+        Ask Questions About<br />
+        Your PDFs —<br />
+        <span class="gradient-text-blue">Without Sending Them Anywhere</span>
+      </h1>
+      <p class="text-xl md:text-2xl text-slate-400 font-light max-w-3xl mx-auto leading-relaxed mb-10">
+        VaultRAG runs entirely on your Android device using Gemma 4. No cloud, no servers, no data exposure. GDPR and HIPAA compliance is automatic — <strong class="text-slate-300 font-medium">your documents never leave the phone.</strong>
+      </p>
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+        <a href="#waitlist" class="btn-primary text-white font-semibold px-8 py-4 rounded-xl text-base no-underline w-full sm:w-auto text-center">
+          Join the Early Access Waitlist →
+        </a>
+        <a href="#features" class="text-slate-400 hover:text-white transition-colors font-medium flex items-center gap-2 text-base group">
+          <span class="w-10 h-10 rounded-full glass flex items-center justify-center group-hover:border-indigo-500/40 transition-colors">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><polygon points="5,3 19,12 5,21" fill="currentColor"/></svg>
+          </span>
+          See how it works
+        </a>
+      </div>
+    </div>
+
+    <!-- Hero Mockup -->
+    <div class="fade-up fade-up-delay-2 max-w-4xl mx-auto">
+      <div class="hero-mockup p-6 md:p-10" style="min-height: 360px;">
+        <!-- Fake chat UI -->
+        <div class="relative z-10 flex flex-col gap-4 max-w-2xl mx-auto">
+          <!-- Header bar -->
+          <div class="flex items-center gap-3 pb-4 border-b border-white/10">
+            <div class="w-8 h-8 rounded-lg bg-indigo-500/20 flex items-center justify-center text-sm">📄</div>
+            <div>
+              <div class="text-sm font-semibold text-white">HIPAA_Compliance_Policy_2024.pdf</div>
+              <div class="text-xs text-slate-500">142 pages · Indexed locally · 🔒 Never uploaded</div>
+            </div>
+            <div class="ml-auto flex items-center gap-1 text-xs text-green-400 font-medium glass rounded-full px-3 py-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-green-400"></span> Offline
+            </div>
+          </div>
+
+          <!-- Messages -->
+          <div class="glass rounded-2xl rounded-tl-sm p-4 max-w-md self-start">
+            <p class="text-slate-300 text-sm">"What are the breach notification timelines under Section 4.2?"</p>
+          </div>
+          <div class="glass rounded-2xl rounded-tr-sm p-4 max-w-lg self-end" style="background: rgba(99,102,241,0.1); border-color: rgba(99,102,241,0.2);">
+            <p class="text-slate-200 text-sm leading-relaxed">Under Section 4.2, covered entities must notify affected individuals <strong>within 60 days</strong> of discovering a breach. HHS notification follows the same timeline...</p>
+            <div class="mt-3 pt-3 border-t border-white/10 flex items-center gap-2">
+              <span class="text-xs text-indigo-400 font-medium">📌 Source: Page 47, §4.2, Paragraph 3</span>
+            </div>
+          </div>
+          <div class="text-center text-xs text-slate-600 font-medium tracking-wide">
+            All inference · All storage · 100% on-device
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider max-w-6xl mx-auto"></div>
+
+<!-- SOCIAL PROOF LOGOS -->
+<section class="py-16 px-6">
+  <div class="max-w-6xl mx-auto fade-up">
+    <p class="text-center text-xs text-slate-600 font-semibold uppercase tracking-widest mb-10">Join early adopters on the waitlist — teams from</p>
+    <div class="flex flex-wrap items-center justify-center gap-10 md:gap-16">
+      <span class="logo-item">HealthFirst</span>
+      <span class="logo-item">LexCounsel</span>
+      <span class="logo-item">Meridian Capital</span>
+      <span class="logo-item">ArcticMed</span>
+      <span class="logo-item">Stratum Legal</span>
+      <span class="logo-item">DataVault GmbH</span>
+    </div>
+  </div>
+</section>
+
+<div class="divider max-w-6xl mx-auto"></div>
+
+<!-- PROBLEM -->
+<section class="py-24 px-6" id="problem">
+  <div class="max-w-6xl mx-auto">
+    <div class="text-center mb-16 fade-up">
+      <span class="text-indigo-400 text-sm font-semibold uppercase tracking-widest">The Problem</span>
+      <h2 class="text-4xl md:text-5xl font-black text-white mt-4 mb-6 tracking-tight leading-tight">Your legal team is blocking<br />cloud AI. Here's the fix.</h2>
+      <p class="text-slate-400 text-lg max-w-2xl mx-auto leading-relaxed">Your legal/compliance team is blocking cloud AI adoption because every vendor needs a DPA and a security review. VaultRAG eliminates the entire conversation.</p>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-6 max-w-5xl mx-auto">
+      <!-- Before -->
+      <div class="before-card rounded-2xl p-8 fade-up">
+        <div class="flex items-center gap-3 mb-6">
+          <span class="text-2xl">😩</span>
+          <h3 class="text-xl font-bold text-red-400">The Old Way</h3>
+        </div>
+        <ul class="space-y-4">
+          <li class="flex items-start gap-3">
+            <span class="text-red-400 mt-0.5 flex-shrink-0">✗</span>
+            <span class="text-slate-300 text-sm leading-relaxed">Upload documents to a cloud AI service — sensitive contracts, medical records, legal briefs all leave your control.</span>
+          </li>
+          <li class="flex items-start gap-3">
+            <span class="text-red-400 mt-0.5 flex-shrink-0">✗</span>
+            <span class="text-slate-300 text-sm leading-relaxed">Legal team demands a full DPA, security audit, vendor questionnaire, and CISO sign-off. Takes 3–6 months.</span>
+          </li>
+          <li class="flex items-start gap-3">
+            <span class="text-red-400 mt-0.5 flex-shrink-0">✗</span>
+            <span class="text-slate-300 text-sm leading-relaxed">Vendor gets breached. Your client data is in the news. Regulators come knocking.</span>
+          </li>
+          <li class="flex items-start gap-3">
+            <span class="text-red-400 mt-0.5 flex-shrink-0">✗</span>
+            <span class="text-slate-300 text-sm leading-relaxed">Subscription pricing that grows with every seat — justified by the compliance overhead you absorb.</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- After -->
+      <div class="after-card rounded-2xl p-8 fade-up fade-up-delay-1">
+        <div class="flex items-center gap-3 mb-6">
+          <span class="text-2xl">🔐</span>
+          <h3 class="text-xl font-bold text-indigo-400">The VaultRAG Way</h3>
+        </div>
+        <ul class="space-y-4">
+          <li class="flex items-start gap-3">
+            <span class="text-indigo-400 mt-0.5 flex-shrink-0">✓</span>
+            <span class="text-slate-300 text-sm leading-relaxed">Documents stay on the device. The model runs on the device. Zero data leaves. Nothing to audit externally.</span>
+          </li>
+          <li class="flex items-start gap-3">
+            <span class="text-indigo-400 mt-0.5 flex-shrink-0">✓</span>
+            <span class="text-slate-300 text-sm leading-relaxed">Your CISO signs off in one meeting. No DPA needed. No data processing addendum. No third-party sub-processors.</span>
+          </li>
+          <li class="flex items-start gap-3">
+            <span class="text-indigo-400 mt-0.5 flex-shrink-0">✓</span>
+            <span class="text-slate-300 text-sm leading-relaxed">A vendor breach can't expose what was never shared. GDPR Article 25 (privacy by design) satisfied automatically.</span>
+          </li>
+          <li class="flex items-start gap-3">
+            <span class="text-indigo-400 mt-0.5 flex-shrink-0">✓</span>
+            <span class="text-slate-300 text-sm leading-relaxed">One-time payment. No recurring vendor risk. Runs in airplane mode on hardware you already own.</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider max-w-6xl mx-auto"></div>
+
+<!-- FEATURES -->
+<section class="py-24 px-6" id="features">
+  <div class="max-w-6xl mx-auto">
+    <div class="text-center mb-16 fade-up">
+      <span class="text-indigo-400 text-sm font-semibold uppercase tracking-widest">Features</span>
+      <h2 class="text-4xl md:text-5xl font-black text-white mt-4 tracking-tight leading-tight">Built for professionals<br />who can't afford leaks</h2>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-6">
+      <!-- Feature 1 -->
+      <div class="glass glass-hover rounded-2xl p-8 fade-up">
+        <div class="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl mb-6" style="background: rgba(99,102,241,0.15); border: 1px solid rgba(99,102,241,0.2);">
+          🧠
+        </div>
+        <h3 class="text-xl font-bold text-white mb-3 leading-snug">100% On-
