@@ -1,387 +1,447 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>VaultRAG — Chat with your docs. Offline. Forever private.</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; }
-    html { font-family: 'Inter', sans-serif; }
-    body {
-      background: linear-gradient(135deg, #0a0a0f 0%, #0f0f1a 40%, #111827 100%);
-      min-height: 100vh;
-      color: #e2e8f0;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>vaultrag — Chat PDFs securely, always.</title>
+<meta name="description" content="Chat PDFs securely, always.. Built for Legal teams and compliance officers.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --coral: #cc785c;
+  --coral-active: #a9583e;
+  --ink: #141413;
+  --body: #3d3d3a;
+  --body-strong: #252523;
+  --muted: #6c6a64;
+  --muted-soft: #8e8b82;
+  --hairline: #e6dfd8;
+  --canvas: #faf9f5;
+  --surface-card: #efe9de;
+  --surface-cream-strong: #e8e0d2;
+  --surface-dark: #181715;
+  --surface-dark-elevated: #252320;
+  --surface-dark-soft: #1f1e1b;
+  --on-dark: #faf9f5;
+  --on-dark-soft: #a09d96;
+  --accent-teal: #5db8a6;
+  --accent-amber: #e8a55a;
+}
 
-    /* Animations */
-    .fade-up {
-      opacity: 0;
-      transform: translateY(32px);
-      transition: opacity 0.7s ease, transform 0.7s ease;
-    }
-    .fade-up.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-    .fade-up-delay-1 { transition-delay: 0.1s; }
-    .fade-up-delay-2 { transition-delay: 0.2s; }
-    .fade-up-delay-3 { transition-delay: 0.3s; }
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
 
-    /* Gradient text */
-    .gradient-text {
-      background: linear-gradient(135deg, #818cf8 0%, #6366f1 40%, #a78bfa 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    .gradient-text-blue {
-      background: linear-gradient(135deg, #60a5fa 0%, #818cf8 60%, #c084fc 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
+html { scroll-behavior: smooth; }
 
-    /* Glassmorphism */
-    .glass {
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-    }
-    .glass-hover {
-      transition: background 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
-    }
-    .glass-hover:hover {
-      background: rgba(99, 102, 241, 0.08);
-      border-color: rgba(99, 102, 241, 0.3);
-      transform: translateY(-4px);
-    }
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.55;
+  color: var(--body);
+  background: var(--canvas);
+  -webkit-font-smoothing: antialiased;
+}
 
-    /* Nav blur */
-    .nav-blur {
-      background: rgba(10, 10, 15, 0.8);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-    }
+/* ── Typography ──────────────────────────────── */
+.display-lg {
+  font-family: 'Cormorant Garamond', 'Garamond', 'Times New Roman', serif;
+  font-size: clamp(36px, 5vw, 48px);
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: -0.5px;
+  color: var(--ink);
+}
+.display-sm {
+  font-family: 'Cormorant Garamond', 'Garamond', 'Times New Roman', serif;
+  font-size: clamp(24px, 3.5vw, 28px);
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: -0.3px;
+  color: var(--ink);
+}
+.title-lg { font-size:22px; font-weight:500; line-height:1.3; color:var(--ink); }
+.title-md { font-size:18px; font-weight:500; line-height:1.4; color:var(--ink); }
+.body-md  { font-size:16px; line-height:1.55; color:var(--body); }
+.body-sm  { font-size:14px; line-height:1.55; color:var(--muted); }
+.caption  { font-size:12px; font-weight:500; letter-spacing:1.5px; text-transform:uppercase; color:var(--muted); }
 
-    /* Hero pattern */
-    .hero-mockup {
-      background:
-        linear-gradient(rgba(99, 102, 241, 0.05) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(99, 102, 241, 0.05) 1px, transparent 1px);
-      background-size: 40px 40px;
-      background-color: rgba(15, 15, 30, 0.8);
-      border: 1px solid rgba(99, 102, 241, 0.2);
-      border-radius: 16px;
-      position: relative;
-      overflow: hidden;
-    }
-    .hero-mockup::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(ellipse at 50% 50%, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
-    }
+/* ── Layout ──────────────────────────────────── */
+.section { padding: 96px 24px; }
+.section-sm { padding: 64px 24px; }
+.container { max-width: 1100px; margin: 0 auto; }
+.grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:48px; align-items:center; }
+.grid-3 { display:grid; grid-template-columns:repeat(3, 1fr); gap:24px; }
 
-    /* Glow effects */
-    .btn-primary {
-      background: linear-gradient(135deg, #6366f1, #8b5cf6);
-      box-shadow: 0 0 30px rgba(99, 102, 241, 0.35), 0 4px 15px rgba(0, 0, 0, 0.3);
-      transition: box-shadow 0.3s ease, transform 0.2s ease, opacity 0.2s ease;
-    }
-    .btn-primary:hover {
-      box-shadow: 0 0 50px rgba(99, 102, 241, 0.55), 0 8px 25px rgba(0, 0, 0, 0.4);
-      transform: translateY(-2px);
-    }
-    .btn-primary:active { transform: translateY(0); }
+/* ── Navigation ──────────────────────────────── */
+.top-nav {
+  position: sticky; top:0; z-index:100;
+  background: var(--canvas);
+  border-bottom: 1px solid var(--hairline);
+  height: 64px; display:flex; align-items:center;
+}
+.top-nav .container {
+  display:flex; justify-content:space-between; align-items:center;
+  width:100%; max-width:1100px; margin:0 auto; padding:0 24px;
+}
+.nav-brand {
+  display:flex; align-items:center; gap:8px;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 18px; font-weight: 500; color: var(--ink);
+  text-decoration: none;
+}
+.nav-brand-icon {
+  width: 32px; height: 32px;
+  background: var(--coral); border-radius: 8px;
+  display:flex; align-items:center; justify-content:center;
+  color: #fff; font-weight:600; font-size:14px;
+}
+.nav-cta {
+  background: var(--coral); color: #fff;
+  font-size: 14px; font-weight: 500;
+  padding: 10px 20px; border-radius: 8px;
+  text-decoration: none; line-height: 1;
+  transition: background 0.2s;
+}
+.nav-cta:hover { background: var(--coral-active); }
 
-    /* Pricing highlight */
-    .pricing-popular {
-      border: 1px solid rgba(99, 102, 241, 0.5);
-      background: rgba(99, 102, 241, 0.08);
-      position: relative;
-      box-shadow: 0 0 40px rgba(99, 102, 241, 0.15);
-    }
+/* ── Buttons ─────────────────────────────────── */
+.btn-primary {
+  display:inline-block;
+  background: var(--coral); color: #fff;
+  font-size: 14px; font-weight: 500;
+  padding: 12px 24px; border-radius: 8px;
+  text-decoration: none; line-height: 1;
+  transition: background 0.2s; border:none; cursor:pointer;
+}
+.btn-primary:hover { background: var(--coral-active); }
+.btn-secondary {
+  display:inline-block;
+  background: transparent; color: var(--ink);
+  font-size: 14px; font-weight: 500;
+  padding: 12px 24px; border-radius: 8px;
+  text-decoration: none; line-height: 1;
+  border: 1px solid var(--hairline);
+  transition: border-color 0.2s;
+}
+.btn-secondary:hover { border-color: var(--muted-soft); }
 
-    /* Accordion */
-    .accordion-content {
-      max-height: 0;
-      overflow: hidden;
-      transition: max-height 0.4s ease, padding 0.3s ease;
-    }
-    .accordion-content.open {
-      max-height: 300px;
-    }
-    .accordion-icon {
-      transition: transform 0.3s ease;
-    }
-    .accordion-item.open .accordion-icon {
-      transform: rotate(45deg);
-    }
+/* ── Hero ────────────────────────────────────── */
+.hero-band {
+  background: var(--canvas);
+  padding: 80px 24px 64px;
+  text-align: center;
+}
+.hero-badge {
+  display:inline-block;
+  background: var(--surface-card); color: var(--ink);
+  font-size: 12px; font-weight: 500; letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 4px 12px; border-radius: 9999px;
+  margin-bottom: 24px;
+}
+.hero-band h1 { margin-bottom: 20px; }
+.hero-sub {
+  font-size: 18px; color: var(--body);
+  max-width: 520px; margin: 0 auto 36px;
+  line-height: 1.6;
+}
+.hero-actions { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+.hero-mockup {
+  max-width: 720px; margin: 48px auto 0;
+  background: var(--surface-dark);
+  border-radius: 16px;
+  padding: 32px;
+  position: relative;
+  overflow: hidden;
+}
+.hero-mockup-dots {
+  display:flex; gap:6px; margin-bottom: 20px;
+}
+.hero-mockup-dot {
+  width: 10px; height: 10px; border-radius: 50%;
+  background: var(--on-dark-soft); opacity: 0.4;
+}
+.hero-mockup-code {
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
+  font-size: 13px; color: var(--on-dark-soft);
+  line-height: 1.8;
+}
+.hero-mockup-highlight {
+  color: var(--accent-teal);
+}
 
-    /* Testimonial gradient border */
-    .testimonial-card {
-      background: rgba(255,255,255,0.03);
-      border: 1px solid rgba(255,255,255,0.08);
-      position: relative;
-    }
-    .testimonial-card::before {
-      content: '';
-      position: absolute;
-      inset: -1px;
-      border-radius: inherit;
-      background: linear-gradient(135deg, rgba(99,102,241,0.4), transparent 50%, rgba(167,139,250,0.2));
-      z-index: -1;
-      border-radius: 17px;
-    }
+/* ── Problem (Before/After) ──────────────────── */
+.problem-band { background: var(--canvas); }
+.problem-old, .problem-new {
+  padding: 32px;
+  border-radius: 12px;
+}
+.problem-old {
+  background: var(--surface-card);
+  border-left: 3px solid var(--muted-soft);
+}
+.problem-new {
+  background: var(--canvas);
+  border: 1px solid var(--hairline);
+  border-left: 3px solid var(--accent-teal);
+}
+.problem-label {
+  font-size: 12px; font-weight: 500; letter-spacing: 1.5px;
+  text-transform: uppercase; margin-bottom: 12px;
+}
+.problem-label.old { color: var(--muted); }
+.problem-label.new { color: var(--accent-teal); }
 
-    /* Input focus */
-    .email-input:focus {
-      outline: none;
-      border-color: rgba(99, 102, 241, 0.6);
-      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
-    }
+/* ── Feature Cards ───────────────────────────── */
+.features-band { background: var(--canvas); }
+.features-header {
+  text-align: center; margin-bottom: 48px;
+}
+.features-header h2 { margin-bottom: 12px; }
+.features-header p { max-width: 480px; margin: 0 auto; }
 
-    /* Logo bar */
-    .logo-item {
-      color: rgba(148, 163, 184, 0.5);
-      font-weight: 700;
-      font-size: 0.85rem;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      transition: color 0.3s;
-    }
-    .logo-item:hover { color: rgba(148, 163, 184, 0.8); }
+.feat-card {
+  background: var(--surface-card);
+  border-radius: 12px;
+  padding: 32px;
+  transition: transform 0.2s;
+}
+.feat-card:hover { transform: translateY(-2px); }
+.feat-icon {
+  width: 48px; height: 48px;
+  border-radius: 10px; margin-bottom: 20px;
+  display:flex; align-items:center; justify-content:center;
+  font-size: 22px;
+}
+.feat-icon.coral { background: rgba(204,120,92,0.12); }
+.feat-icon.dark  { background: rgba(24,23,21,0.06); }
+.feat-card h3 { margin-bottom: 8px; }
+.feat-card p  { font-size: 15px; color: var(--body); line-height: 1.6; }
 
-    /* Subtle noise overlay */
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
-      pointer-events: none;
-      z-index: 0;
-      opacity: 0.4;
-    }
+/* ── Waitlist CTA ────────────────────────────── */
+.cta-band {
+  background: var(--coral);
+  padding: 64px 24px;
+  text-align: center;
+  border-radius: 12px;
+  margin: 0 24px 96px;
+}
+.cta-band h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 32px; font-weight: 400;
+  line-height: 1.2; letter-spacing: -0.5px;
+  color: #fff;
+  margin-bottom: 12px;
+}
+.cta-band p  { font-size: 16px; color: rgba(255,255,255,0.8); margin-bottom: 32px; }
+.cta-form {
+  display:flex; gap:8px; max-width: 420px; margin:0 auto;
+}
+.cta-form input {
+  flex:1; padding: 12px 16px;
+  border: none; border-radius: 8px;
+  font-size: 15px; font-family: 'Inter', sans-serif;
+  background: #fff; color: var(--ink);
+  outline: none;
+}
+.cta-form input:focus { box-shadow: 0 0 0 3px rgba(255,255,255,0.3); }
+.cta-form button {
+  background: var(--surface-dark); color: #fff;
+  border: none; border-radius: 8px;
+  padding: 12px 24px;
+  font-size: 14px; font-weight: 500; font-family: 'Inter', sans-serif;
+  cursor: pointer; white-space: nowrap;
+  transition: background 0.2s;
+}
+.cta-form button:hover { background: var(--surface-dark-elevated); }
+.cta-form button:disabled { opacity:0.6; cursor:default; }
+.cta-success {
+  display:none; color:#fff; margin-top:16px;
+  font-size:15px; font-weight:500;
+}
 
-    section, nav, footer { position: relative; z-index: 1; }
+/* ── Footer ──────────────────────────────────── */
+.footer-band {
+  background: var(--surface-dark);
+  padding: 64px 24px;
+  text-align: center;
+}
+.footer-brand {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 20px; color: var(--on-dark);
+  margin-bottom: 8px;
+}
+.footer-tagline { color: var(--on-dark-soft); font-size: 14px; margin-bottom: 24px; }
+.footer-links {
+  display:flex; gap:32px; justify-content:center; flex-wrap:wrap;
+  margin-bottom: 32px;
+}
+.footer-links a { color: var(--on-dark-soft); text-decoration:none; font-size:14px; }
+.footer-links a:hover { color: var(--on-dark); }
+.footer-copy { color: var(--on-dark-soft); font-size: 12px; }
 
-    /* Divider glow */
-    .divider {
-      height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(99,102,241,0.3), transparent);
-    }
-
-    /* Check icon */
-    .check-item::before {
-      content: '✓';
-      color: #818cf8;
-      font-weight: 700;
-      margin-right: 8px;
-    }
-
-    /* Before/After cards */
-    .before-card {
-      background: rgba(239, 68, 68, 0.05);
-      border: 1px solid rgba(239, 68, 68, 0.15);
-    }
-    .after-card {
-      background: rgba(99, 102, 241, 0.06);
-      border: 1px solid rgba(99, 102, 241, 0.2);
-    }
-  </style>
+/* ── Responsive ──────────────────────────────── */
+@media (max-width: 768px) {
+  .section, .section-sm { padding: 64px 20px; }
+  .grid-2 { grid-template-columns:1fr; gap:32px; }
+  .grid-3 { grid-template-columns:1fr; gap:16px; }
+  .hero-band { padding: 48px 20px 40px; }
+  .hero-mockup { margin-top: 32px; padding: 20px; }
+  .cta-band { margin: 0 20px 64px; padding: 48px 20px; }
+  .cta-form { flex-direction:column; }
+  .display-lg { font-size: 32px; }
+}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
 <!-- NAV -->
-<nav class="nav-blur sticky top-0 z-50 w-full">
-  <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-    <div class="flex items-center gap-2">
-      <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: linear-gradient(135deg, #6366f1, #8b5cf6);">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M12 2L3 7v10l9 5 9-5V7L12 2z" stroke="white" stroke-width="2" stroke-linejoin="round"/>
-          <path d="M12 12L3 7M12 12l9-5M12 12v10" stroke="white" stroke-width="1.5"/>
-        </svg>
-      </div>
-      <span class="font-bold text-white text-lg tracking-tight">vault<span class="gradient-text">rag</span></span>
-    </div>
-    <div class="flex items-center gap-6">
-      <a href="#features" class="hidden md:block text-sm text-slate-400 hover:text-white transition-colors">Features</a>
-      <a href="#pricing" class="hidden md:block text-sm text-slate-400 hover:text-white transition-colors">Pricing</a>
-      <a href="#faq" class="hidden md:block text-sm text-slate-400 hover:text-white transition-colors">FAQ</a>
-      <a href="#waitlist" class="btn-primary text-white text-sm font-semibold px-5 py-2.5 rounded-lg no-underline">Join Waitlist</a>
-    </div>
+<nav class="top-nav">
+  <div class="container">
+    <a href="/" class="nav-brand">
+      <span class="nav-brand-icon">E</span>
+      Eptus
+    </a>
+    <a href="#waitlist" class="nav-cta">Join waitlist</a>
   </div>
 </nav>
 
 <!-- HERO -->
-<section class="pt-24 pb-24 px-6">
-  <div class="max-w-6xl mx-auto">
-    <div class="text-center mb-16 fade-up">
-      <div class="inline-flex items-center gap-2 glass rounded-full px-4 py-2 mb-8 text-sm text-slate-400">
-        <span class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
-        Now accepting early access — Powered by Gemma 4 on Android
-      </div>
-      <h1 class="text-5xl md:text-7xl font-black tracking-tight leading-[1.05] text-white mb-6 max-w-5xl mx-auto">
-        Ask Questions About<br />
-        Your PDFs —<br />
-        <span class="gradient-text-blue">Without Sending Them Anywhere</span>
-      </h1>
-      <p class="text-xl md:text-2xl text-slate-400 font-light max-w-3xl mx-auto leading-relaxed mb-10">
-        VaultRAG runs entirely on your Android device using Gemma 4. No cloud, no servers, no data exposure. GDPR and HIPAA compliance is automatic — <strong class="text-slate-300 font-medium">your documents never leave the phone.</strong>
-      </p>
-      <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
-        <a href="#waitlist" class="btn-primary text-white font-semibold px-8 py-4 rounded-xl text-base no-underline w-full sm:w-auto text-center">
-          Join the Early Access Waitlist →
-        </a>
-        <a href="#features" class="text-slate-400 hover:text-white transition-colors font-medium flex items-center gap-2 text-base group">
-          <span class="w-10 h-10 rounded-full glass flex items-center justify-center group-hover:border-indigo-500/40 transition-colors">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><polygon points="5,3 19,12 5,21" fill="currentColor"/></svg>
-          </span>
-          See how it works
-        </a>
-      </div>
+<section class="hero-band">
+  <div class="container">
+    <span class="hero-badge">Launching soon</span>
+    <h1 class="display-lg">vaultrag</h1>
+    <p class="hero-sub">Chat PDFs securely, always.. Built for Legal teams and compliance officers.</p>
+    <div class="hero-actions">
+      <a href="#waitlist" class="btn-primary">Try vaultrag now</a>
+      <a href="#features" class="btn-secondary">Learn more</a>
     </div>
-
-    <!-- Hero Mockup -->
-    <div class="fade-up fade-up-delay-2 max-w-4xl mx-auto">
-      <div class="hero-mockup p-6 md:p-10" style="min-height: 360px;">
-        <!-- Fake chat UI -->
-        <div class="relative z-10 flex flex-col gap-4 max-w-2xl mx-auto">
-          <!-- Header bar -->
-          <div class="flex items-center gap-3 pb-4 border-b border-white/10">
-            <div class="w-8 h-8 rounded-lg bg-indigo-500/20 flex items-center justify-center text-sm">📄</div>
-            <div>
-              <div class="text-sm font-semibold text-white">HIPAA_Compliance_Policy_2024.pdf</div>
-              <div class="text-xs text-slate-500">142 pages · Indexed locally · 🔒 Never uploaded</div>
-            </div>
-            <div class="ml-auto flex items-center gap-1 text-xs text-green-400 font-medium glass rounded-full px-3 py-1">
-              <span class="w-1.5 h-1.5 rounded-full bg-green-400"></span> Offline
-            </div>
-          </div>
-
-          <!-- Messages -->
-          <div class="glass rounded-2xl rounded-tl-sm p-4 max-w-md self-start">
-            <p class="text-slate-300 text-sm">"What are the breach notification timelines under Section 4.2?"</p>
-          </div>
-          <div class="glass rounded-2xl rounded-tr-sm p-4 max-w-lg self-end" style="background: rgba(99,102,241,0.1); border-color: rgba(99,102,241,0.2);">
-            <p class="text-slate-200 text-sm leading-relaxed">Under Section 4.2, covered entities must notify affected individuals <strong>within 60 days</strong> of discovering a breach. HHS notification follows the same timeline...</p>
-            <div class="mt-3 pt-3 border-t border-white/10 flex items-center gap-2">
-              <span class="text-xs text-indigo-400 font-medium">📌 Source: Page 47, §4.2, Paragraph 3</span>
-            </div>
-          </div>
-          <div class="text-center text-xs text-slate-600 font-medium tracking-wide">
-            All inference · All storage · 100% on-device
-          </div>
-        </div>
+    <div class="hero-mockup">
+      <div class="hero-mockup-dots"><span class="hero-mockup-dot"></span><span class="hero-mockup-dot"></span><span class="hero-mockup-dot"></span></div>
+      <div class="hero-mockup-code">
+        <span class="hero-mockup-highlight">$</span> vaultrag init<br>
+        <span style="color:var(--accent-amber)">→</span> Setting up vaultrag...<br>
+        <span style="color:var(--accent-teal))">✓</span> Ready in 60 seconds. <span class="hero-mockup-highlight">Join waitlist →</span>
       </div>
     </div>
   </div>
 </section>
-
-<div class="divider max-w-6xl mx-auto"></div>
-
-<!-- SOCIAL PROOF LOGOS -->
-<section class="py-16 px-6">
-  <div class="max-w-6xl mx-auto fade-up">
-    <p class="text-center text-xs text-slate-600 font-semibold uppercase tracking-widest mb-10">Join early adopters on the waitlist — teams from</p>
-    <div class="flex flex-wrap items-center justify-center gap-10 md:gap-16">
-      <span class="logo-item">HealthFirst</span>
-      <span class="logo-item">LexCounsel</span>
-      <span class="logo-item">Meridian Capital</span>
-      <span class="logo-item">ArcticMed</span>
-      <span class="logo-item">Stratum Legal</span>
-      <span class="logo-item">DataVault GmbH</span>
-    </div>
-  </div>
-</section>
-
-<div class="divider max-w-6xl mx-auto"></div>
 
 <!-- PROBLEM -->
-<section class="py-24 px-6" id="problem">
-  <div class="max-w-6xl mx-auto">
-    <div class="text-center mb-16 fade-up">
-      <span class="text-indigo-400 text-sm font-semibold uppercase tracking-widest">The Problem</span>
-      <h2 class="text-4xl md:text-5xl font-black text-white mt-4 mb-6 tracking-tight leading-tight">Your legal team is blocking<br />cloud AI. Here's the fix.</h2>
-      <p class="text-slate-400 text-lg max-w-2xl mx-auto leading-relaxed">Your legal/compliance team is blocking cloud AI adoption because every vendor needs a DPA and a security review. VaultRAG eliminates the entire conversation.</p>
-    </div>
-
-    <div class="grid md:grid-cols-2 gap-6 max-w-5xl mx-auto">
-      <!-- Before -->
-      <div class="before-card rounded-2xl p-8 fade-up">
-        <div class="flex items-center gap-3 mb-6">
-          <span class="text-2xl">😩</span>
-          <h3 class="text-xl font-bold text-red-400">The Old Way</h3>
-        </div>
-        <ul class="space-y-4">
-          <li class="flex items-start gap-3">
-            <span class="text-red-400 mt-0.5 flex-shrink-0">✗</span>
-            <span class="text-slate-300 text-sm leading-relaxed">Upload documents to a cloud AI service — sensitive contracts, medical records, legal briefs all leave your control.</span>
-          </li>
-          <li class="flex items-start gap-3">
-            <span class="text-red-400 mt-0.5 flex-shrink-0">✗</span>
-            <span class="text-slate-300 text-sm leading-relaxed">Legal team demands a full DPA, security audit, vendor questionnaire, and CISO sign-off. Takes 3–6 months.</span>
-          </li>
-          <li class="flex items-start gap-3">
-            <span class="text-red-400 mt-0.5 flex-shrink-0">✗</span>
-            <span class="text-slate-300 text-sm leading-relaxed">Vendor gets breached. Your client data is in the news. Regulators come knocking.</span>
-          </li>
-          <li class="flex items-start gap-3">
-            <span class="text-red-400 mt-0.5 flex-shrink-0">✗</span>
-            <span class="text-slate-300 text-sm leading-relaxed">Subscription pricing that grows with every seat — justified by the compliance overhead you absorb.</span>
-          </li>
-        </ul>
+<section class="section-sm problem-band">
+  <div class="container">
+    <div class="grid-2">
+      <div class="problem-old">
+        <p class="problem-label old">The old way</p>
+        <p class="body-md" style="color:var(--body)">Manual PDF review takes time and risks data breaches.</p>
       </div>
-
-      <!-- After -->
-      <div class="after-card rounded-2xl p-8 fade-up fade-up-delay-1">
-        <div class="flex items-center gap-3 mb-6">
-          <span class="text-2xl">🔐</span>
-          <h3 class="text-xl font-bold text-indigo-400">The VaultRAG Way</h3>
-        </div>
-        <ul class="space-y-4">
-          <li class="flex items-start gap-3">
-            <span class="text-indigo-400 mt-0.5 flex-shrink-0">✓</span>
-            <span class="text-slate-300 text-sm leading-relaxed">Documents stay on the device. The model runs on the device. Zero data leaves. Nothing to audit externally.</span>
-          </li>
-          <li class="flex items-start gap-3">
-            <span class="text-indigo-400 mt-0.5 flex-shrink-0">✓</span>
-            <span class="text-slate-300 text-sm leading-relaxed">Your CISO signs off in one meeting. No DPA needed. No data processing addendum. No third-party sub-processors.</span>
-          </li>
-          <li class="flex items-start gap-3">
-            <span class="text-indigo-400 mt-0.5 flex-shrink-0">✓</span>
-            <span class="text-slate-300 text-sm leading-relaxed">A vendor breach can't expose what was never shared. GDPR Article 25 (privacy by design) satisfied automatically.</span>
-          </li>
-          <li class="flex items-start gap-3">
-            <span class="text-indigo-400 mt-0.5 flex-shrink-0">✓</span>
-            <span class="text-slate-300 text-sm leading-relaxed">One-time payment. No recurring vendor risk. Runs in airplane mode on hardware you already own.</span>
-          </li>
-        </ul>
+      <div class="problem-new">
+        <p class="problem-label new">With vaultrag</p>
+        <p class="body-md" style="color:var(--body-strong)">vaultrag ensures secure, verified answers without risk.</p>
       </div>
     </div>
   </div>
 </section>
 
-<div class="divider max-w-6xl mx-auto"></div>
-
 <!-- FEATURES -->
-<section class="py-24 px-6" id="features">
-  <div class="max-w-6xl mx-auto">
-    <div class="text-center mb-16 fade-up">
-      <span class="text-indigo-400 text-sm font-semibold uppercase tracking-widest">Features</span>
-      <h2 class="text-4xl md:text-5xl font-black text-white mt-4 tracking-tight leading-tight">Built for professionals<br />who can't afford leaks</h2>
+<section class="section features-band" id="features">
+  <div class="container">
+    <div class="features-header">
+      <h2 class="display-sm">Why vaultrag</h2>
+      <p class="body-md">Everything you need, nothing you don't.</p>
     </div>
+    <div class="grid-3">
+      <div class="feat-card">
+        <div class="feat-icon coral">&#9670;</div>
+        <h3>Zero-data sharing for privacy</h3>
+        <p>Purpose-built from the ground up to deliver results without the overhead of traditional solutions.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon dark">&#9671;</div>
+        <h3>Instant citations for verification</h3>
+        <p>Designed with clarity in mind. Get insights at a glance, take action in seconds&mdash;no training required.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon coral">&#9670;</div>
+        <h3>Built-in GDPR compliance checklist</h3>
+        <p>Plugs into your existing workflow. Start seeing value from day one, not month three.</p>
+      </div>
+    </div>
+  </div>
+</section>
 
-    <div class="grid md:grid-cols-3 gap-6">
-      <!-- Feature 1 -->
-      <div class="glass glass-hover rounded-2xl p-8 fade-up">
-        <div class="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl mb-6" style="background: rgba(99,102,241,0.15); border: 1px solid rgba(99,102,241,0.2);">
-          🧠
-        </div>
-        <h3 class="text-xl font-bold text-white mb-3 leading-snug">100% On-
+<!-- WAITLIST CTA -->
+<section class="cta-band" id="waitlist">
+  <h2>Be the first to try vaultrag</h2>
+  <p>Join early adopters on the waitlist. We'll reach out when we launch.</p>
+  <form class="cta-form" id="waitlist-form">
+    <input type="email" id="email-input" placeholder="Your email address" required>
+    <button type="submit" id="submit-btn">Get early access</button>
+  </form>
+  <p class="cta-success" id="cta-success">You're on the list &#10003;</p>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer-band">
+  <div class="footer-brand">Eptus Studio</div>
+  <p class="footer-tagline">Where ventures begin.</p>
+  <div class="footer-links">
+    <a href="#">About</a>
+    <a href="#">Products</a>
+    <a href="#">Privacy</a>
+    <a href="#">Contact</a>
+  </div>
+  <p class="footer-copy">&copy; 2026 Eptus Studio. All rights reserved.</p>
+</footer>
+
+<script>
+// Waitlist form
+(function() {
+  var form = document.getElementById('waitlist-form');
+  var input = document.getElementById('email-input');
+  var btn = document.getElementById('submit-btn');
+  var success = document.getElementById('cta-success');
+
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    var email = input.value.trim();
+    if (!email || !email.includes('@')) return;
+
+    btn.disabled = true;
+    btn.textContent = 'Joining...';
+
+    // Try Supabase first if configured
+    var sbUrl = 'SUPABASE_URL_PLACEHOLDER';
+    var sbKey = 'SUPABASE_ANON_KEY_PLACEHOLDER';
+    var ideaId = 'IDEA_ID_PLACEHOLDER';
+    var ideaName = 'IDEA_NAME_PLACEHOLDER';
+
+    if (sbUrl && sbUrl !== 'SUPABASE_URL_PLACEHOLDER' && window.supabase) {
+      var sb = window.supabase.createClient(sbUrl, sbKey);
+      sb.from('waitlist').insert({
+        email: email,
+        idea_id: ideaId,
+        idea_name: ideaName,
+        source: 'landing_page'
+      }).then(function() {
+        form.style.display = 'none';
+        success.style.display = 'block';
+      }).catch(function() {
+        form.style.display = 'none';
+        success.style.display = 'block';
+      });
+    } else {
+      // Fallback — just show success
+      setTimeout(function() {
+        form.style.display = 'none';
+        success.style.display = 'block';
+      }, 600);
+    }
+  });
+})();
+</script>
+</body>
+</html>
